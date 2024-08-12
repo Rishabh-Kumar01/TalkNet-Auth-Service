@@ -1,33 +1,39 @@
 const utils = require("./utils/index.util");
 const config = require("./config/index.config");
 const routes = require("./routes/index.route");
-const db = require("./models/index");
 
 const app = utils.imports.express();
 
-// Middlewares
-app.use(utils.imports.morgan("dev"));
-app.use(utils.imports.cors());
-app.use(utils.imports.helmet());
-app.use(utils.imports.compression());
-app.use(utils.imports.bodyParser.json());
-app.use(utils.imports.bodyParser.urlencoded({ extended: true }));
-app.use("/api", routes);
-
-// Server & Database Connection
+// Function to setup and start the server
 const setupAndStartServer = () => {
+
+    // Middlewares
+  app.use(utils.imports.morgan("dev"));
+  app.use(utils.imports.cors());
+  app.use(utils.imports.helmet());
+  app.use(utils.imports.compression());
+  app.use(utils.imports.bodyParser.json());
+  app.use(utils.imports.bodyParser.urlencoded({ extended: true }));
+  app.use(utils.imports.passport.initialize());
+  
+  // Routes
+  app.use("/api", routes);
+
+  // Home Route
+  app.get("/", (request, response) => {
+    response.send("Hello Server!!!😊😊😊😊");
+  });
+
+  // Start the server on the specified port and connect to the database
   app.listen(config.serverConfig.PORT, async () => {
     console.log(`SERVER IS RUNNING ON PORT ${config.serverConfig.PORT}`);
   });
   config.connection();
 };
 
-// Call the function to start the server and connect to the database
+// Call the function to setup and start the server
 setupAndStartServer();
 
-// Home Route
-app.get("/", (request, response) => {
-  response.send("Hello Server!!!😊😊😊😊");
-});
+
 
 module.exports = app;
