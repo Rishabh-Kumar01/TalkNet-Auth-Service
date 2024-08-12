@@ -1,3 +1,5 @@
+const passport = require("passport");
+
 module.exports = {
   mongoose: require("mongoose"),
   morgan: require("morgan"),
@@ -10,4 +12,9 @@ module.exports = {
   bodyParser: require("body-parser"),
   responseCodes: require("http-status-codes"),
   bcrypt: require("bcryptjs"),
+  passport: require("passport"),
+  passportJwt: require("passport-jwt"),
+  jwt: require("jsonwebtoken"),
+  passportGoogle: require("passport-google-oauth20"),
+  passportFacebook: require("passport-facebook"),
 };
