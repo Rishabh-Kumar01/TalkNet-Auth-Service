@@ -1,5 +1,4 @@
-const passport = require("passport");
-
+// Desc: Import all the required modules in one place
 module.exports = {
   mongoose: require("mongoose"),
   morgan: require("morgan"),
