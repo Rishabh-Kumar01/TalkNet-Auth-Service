@@ -3,8 +3,8 @@ const { BCRYPT_SALT } = require("../config/serverConfig");
 const salt = bcrypt.genSaltSync(parseInt(BCRYPT_SALT));
 
 const userSchema = new mongoose.Schema({
-  username: { type: String, required: true, unique: true },
-  email: { type: String, required: true, unique: true },
+  username: { type: String, unique: true },
+  email: { type: String, unique: true },
   password: { type: String },
   googleId: { type: String },
   facebookId: { type: String },

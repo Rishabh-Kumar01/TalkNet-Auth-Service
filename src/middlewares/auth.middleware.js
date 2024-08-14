@@ -93,13 +93,14 @@ passport.use(new FacebookStrategy({
   done(null, profile);
 }));
 
+
 passport.serializeUser((user, done) => {
   done(null, user.id);
 });
 
 passport.deserializeUser(async (id, done) => {
   try {
-    const user = await User.findById(id);
+    const user = await User.find({googleId: id});
     done(null, user);
   } catch (error) {
     done(error, null);
@@ -111,5 +112,5 @@ module.exports = {
   validateLoginData,
   authenticate: passport.authenticate('jwt', { session: false }),
   googleAuth: passport.authenticate('google', { scope: ['profile', 'email'] }),
-  facebookAuth: passport.authenticate('facebook', { scope: ['email'] })
+  facebookAuth: passport.authenticate('facebook', { scope: ['public_profile'] })
 };

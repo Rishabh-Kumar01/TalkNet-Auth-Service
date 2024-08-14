@@ -65,7 +65,6 @@ class AuthController {
 
   async facebookCallback(req, res) {
     try {
-      console.log(req)
       const { user, token } = await this.authService.facebookAuth(req.user);
       res.status(StatusCodes.OK).json({
         message: 'Facebook authentication successful',

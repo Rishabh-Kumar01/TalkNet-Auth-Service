@@ -12,11 +12,8 @@ class UserRepository {
 
   async create(data) {
     try {
-      const user = await User.create({
-        email: data.email,
-        username: data.username,
-        password: data?.password,
-      });
+      console.log(data, "repository data");  
+      const user = await User.create(data);
       return {
           id: user._id,
           email: user.email,
@@ -25,7 +22,7 @@ class UserRepository {
           lastSeen: user.lastSeen,
       };
     } catch (error) {
-      console.log(error);
+      console.log(error, "repository error");
       if (error.name === "ValidationError") {
         throw new ValidationError(error);
       }

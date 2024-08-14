@@ -1,6 +1,6 @@
 const { UserRepository } = require('../repository/index.repository');
 const { errorHandler } = require('../utils/index.util');
-const { jwt } = require("../utils/imports.util")
+const { jwt, mongoose } = require("../utils/imports.util")
 const { JWT_SECRET } = require('../config/serverConfig');
 
 class AuthService {
@@ -10,7 +10,8 @@ class AuthService {
 
   async signup(userData) {
     try {
-      const user = await this.userRepository.create(userData);
+      const {email, password, username} = userData;
+      const user = await this.userRepository.create({ email, password, username });
       const token = this.#generateToken(user);
       return { user, token };
     } catch (error) {
@@ -56,9 +57,9 @@ class AuthService {
       if (!user) {
         user = await this.userRepository.create({
           googleId: profile.id,
-          email: profile.emails[0].value,
+          email: profile.emails[0]?.value,
           username: profile.displayName,
-          profilePicture: profile.photos[0].value
+          profilePicture: profile.photos[0]?.value
         });
       }
       const token = this.#generateToken(user);
@@ -68,16 +69,40 @@ class AuthService {
     }
   }
 
+  // async facebookAuth(profile) {
+  //   try {
+  //     let user = await this.userRepository.findOne({ facebookId: profile.id });
+  //     if (!user) {
+  //       user = await this.userRepository.create({
+  //         facebookId: profile.id,
+  //         email: profile.emails[0].value,
+  //         username: profile.displayName,
+  //         profilePicture: profile.photos[0].value
+  //       });
+  //     }
+  //     const token = this.#generateToken(user);
+  //     return { user, token };
+  //   } catch (error) {
+  //     throw error;
+  //   }
+  // }
+
   async facebookAuth(profile) {
     try {
       let user = await this.userRepository.findOne({ facebookId: profile.id });
       if (!user) {
-        user = await this.userRepository.create({
+        const userData = {
           facebookId: profile.id,
-          email: profile.emails[0].value,
           username: profile.displayName,
-          profilePicture: profile.photos[0].value
-        });
+          profilePicture: profile.photos[0]?.value
+        };
+        
+        // Only set email if it's available
+        if (profile.emails && profile.emails[0]) {
+          userData.email = profile.emails[0].value;
+        }
+        
+        user = await this.userRepository.create(userData);
       }
       const token = this.#generateToken(user);
       return { user, token };
