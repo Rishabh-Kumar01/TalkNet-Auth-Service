@@ -11,7 +11,7 @@ const userSchema = new mongoose.Schema({
   profilePicture: { type: String },
   status: { type: String, enum: ["online", "offline"], default: "offline" },
   lastSeen: { type: Date },
-});
+}, { timestamps: true });
 
 userSchema.pre("save", async function (next) {
   if (this.isModified("password") && this.password) {
