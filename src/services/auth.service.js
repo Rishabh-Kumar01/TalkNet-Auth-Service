@@ -35,7 +35,12 @@ class AuthService {
         );
       }
       const token = this.#generateToken(user);
-      return { user, token };
+      return { user:{
+        id: user._id,
+        email: user.email,
+        username: user.username,
+        status: user.status,
+      }, token };
     } catch (error) {
       throw error;
     }

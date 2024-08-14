@@ -1,4 +1,4 @@
-const { User } = require("../models/user.model");
+const { User } = require("../models/index.model");
 const { ValidationError, AppError } = require("../utils/errors/index.error");
 const { StatusCodes } = require("../utils/imports.util").responseCodes;
 
@@ -12,16 +12,27 @@ class UserRepository {
 
   async create(data) {
     try {
-      const user = await User.create(data);
-      return user;
+      const user = await User.create({
+        email: data.email,
+        username: data.username,
+        password: data?.password,
+      });
+      return {
+          id: user._id,
+          email: user.email,
+          username: user.username,
+          status: user.status,
+          lastSeen: user.lastSeen,
+      };
     } catch (error) {
+      console.log(error);
       if (error.name === "ValidationError") {
         throw new ValidationError(error);
       }
       throw new AppError(
         "RepositoryError",
         "Cannot create user",
-        "There was an issue creating the user. Please try again.",
+        error.message || "There was an issue creating the user. Please try again.",
         StatusCodes.INTERNAL_SERVER_ERROR
       );
     }

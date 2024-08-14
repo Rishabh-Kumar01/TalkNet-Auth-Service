@@ -14,7 +14,17 @@ const setupAndStartServer = () => {
   app.use(utils.imports.compression());
   app.use(utils.imports.bodyParser.json());
   app.use(utils.imports.bodyParser.urlencoded({ extended: true }));
+
+  app.use(utils.imports.session({
+    secret: config.serverConfig.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: config.serverConfig.NODE_ENV === 'production' }
+  }));
+
+
   app.use(utils.imports.passport.initialize());
+  app.use(utils.imports.passport.session());
   
   // Routes
   app.use("/api", routes);
@@ -23,6 +33,8 @@ const setupAndStartServer = () => {
   app.get("/", (request, response) => {
     response.send("Hello Server!!!😊😊😊😊");
   });
+
+  app.use(utils.errorHandler.BaseError);
 
   // Start the server on the specified port and connect to the database
   app.listen(config.serverConfig.PORT, async () => {

@@ -1,10 +1,11 @@
 const { mongoose, bcrypt } = require("../utils/imports.util");
 const { BCRYPT_SALT } = require("../config/serverConfig");
+const salt = bcrypt.genSaltSync(parseInt(BCRYPT_SALT));
 
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
+  password: { type: String },
   googleId: { type: String },
   facebookId: { type: String },
   profilePicture: { type: String },
@@ -13,8 +14,8 @@ const userSchema = new mongoose.Schema({
 });
 
 userSchema.pre("save", async function (next) {
-  if (this.isModified("password")) {
-    this.password = await bcrypt.hashSync(this.password, BCRYPT_SALT);
+  if (this.isModified("password") && this.password) {
+    this.password = await bcrypt.hash(this.password, salt);
   }
   next();
 });

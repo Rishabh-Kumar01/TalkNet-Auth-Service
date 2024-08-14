@@ -1,3 +1,5 @@
+const { session } = require("passport");
+
 // Desc: Import all the required modules in one place
 module.exports = {
   mongoose: require("mongoose"),
@@ -16,4 +18,5 @@ module.exports = {
   jwt: require("jsonwebtoken"),
   passportGoogle: require("passport-google-oauth20"),
   passportFacebook: require("passport-facebook"),
+  session: require("express-session"),
 };

@@ -11,4 +11,6 @@ module.exports = {
   FACEBOOK_APP_ID: process.env.FACEBOOK_APP_ID,
   FACEBOOK_APP_SECRET: process.env.FACEBOOK_APP_SECRET,
   CALLBACK_URL: process.env.CALLBACK_URL || "http://localhost:3000",
+  SESSION_SECRET: process.env.SESSION_SECRET,
+  NODE_ENV: process.env.NODE_ENV,
 };

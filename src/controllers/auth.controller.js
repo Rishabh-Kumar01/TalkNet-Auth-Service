@@ -8,7 +8,12 @@ class AuthController {
 
   async signup(req, res) {
     try {
-      const { user, token } = await this.authService.signup(req.body);
+      const { email, username, password } = req.body;
+      const { user, token } = await this.authService.signup({
+        email,
+        username,
+        password
+      });
       res.status(StatusCodes.CREATED).json({
         message: 'User created successfully',
         success: true,
@@ -60,6 +65,7 @@ class AuthController {
 
   async facebookCallback(req, res) {
     try {
+      console.log(req)
       const { user, token } = await this.authService.facebookAuth(req.user);
       res.status(StatusCodes.OK).json({
         message: 'Facebook authentication successful',
