@@ -43,14 +43,17 @@ AuthService is a robust authentication and authorization microservice built with
 
    ```
    PORT=3000
-   MONGODB_URI=mongodb://localhost:27017/auth_service
+   DATABASE_URL=mongodb://localhost:27017/auth_service
+   BCRYPT_SALT=your_brcypt_salt_value
    JWT_SECRET=your_jwt_secret
+   JWT_EXPIRES_IN=your_jwt_expires_time
    GOOGLE_CLIENT_ID=your_google_client_id
    GOOGLE_CLIENT_SECRET=your_google_client_secret
    FACEBOOK_APP_ID=your_facebook_app_id
    FACEBOOK_APP_SECRET=your_facebook_app_secret
-   KAFKA_BROKERS=localhost:9092
-   OTP_TOPIC=otp-notifications
+   CALLBACK_URL=your_callback_url
+   SESSION_SECRET=your_session_secret
+   NODE_ENV=development
    ```
 
 4. Start the server:
