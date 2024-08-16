@@ -1,7 +1,7 @@
-const { UserRepository } = require('../repository/index.repository');
-const { errorHandler } = require('../utils/index.util');
-const { jwt, mongoose } = require("../utils/imports.util")
-const { JWT_SECRET } = require('../config/serverConfig');
+const { UserRepository } = require("../repository/index.repository");
+const { errorHandler, kafka } = require("../utils/index.util");
+const { jwt, mongoose } = require("../utils/imports.util");
+const { JWT_SECRET } = require("../config/serverConfig");
 
 class AuthService {
   constructor() {
@@ -10,9 +10,22 @@ class AuthService {
 
   async signup(userData) {
     try {
-      const {email, password, username} = userData;
-      const user = await this.userRepository.create({ email, password, username });
+      const { email, password, username } = userData;
+      const user = await this.userRepository.create({
+        email,
+        password,
+        username,
+      });
       const token = this.#generateToken(user);
+
+      await kafka.sendMessage("otp-notifications", {
+        type: "SEND_OTP",
+        data: {
+          userId: user._id,
+          email: user.email,
+          action: "VERIFY_EMAIL",
+        },
+      });
       return { user, token };
     } catch (error) {
       throw error;
@@ -24,31 +37,34 @@ class AuthService {
       const user = await this.userRepository.findOne({ email });
       if (!user) {
         throw new errorHandler.ServiceError(
-          'Authentication failed',
-          'User not found'
+          "Authentication failed",
+          "User not found"
         );
       }
       const isMatch = await user.comparePassword(password);
       if (!isMatch) {
         throw new errorHandler.ServiceError(
-          'Authentication failed',
-          'Incorrect password'
+          "Authentication failed",
+          "Incorrect password"
         );
       }
       const token = this.#generateToken(user);
-      return { user:{
-        id: user._id,
-        email: user.email,
-        username: user.username,
-        status: user.status,
-      }, token };
+      return {
+        user: {
+          id: user._id,
+          email: user.email,
+          username: user.username,
+          status: user.status,
+        },
+        token,
+      };
     } catch (error) {
       throw error;
     }
   }
 
   #generateToken(user) {
-    return jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '1d' });
+    return jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "1d" });
   }
 
   async googleAuth(profile) {
@@ -59,7 +75,7 @@ class AuthService {
           googleId: profile.id,
           email: profile.emails[0]?.value,
           username: profile.displayName,
-          profilePicture: profile.photos[0]?.value
+          profilePicture: profile.photos[0]?.value,
         });
       }
       const token = this.#generateToken(user);
@@ -94,14 +110,14 @@ class AuthService {
         const userData = {
           facebookId: profile.id,
           username: profile.displayName,
-          profilePicture: profile.photos[0]?.value
+          profilePicture: profile.photos[0]?.value,
         };
-        
+
         // Only set email if it's available
         if (profile.emails && profile.emails[0]) {
           userData.email = profile.emails[0].value;
         }
-        
+
         user = await this.userRepository.create(userData);
       }
       const token = this.#generateToken(user);
