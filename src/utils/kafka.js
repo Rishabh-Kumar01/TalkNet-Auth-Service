@@ -17,10 +17,15 @@ const disconnectProducer = async () => {
 };
 
 const sendMessage = async (topic, message) => {
-  await producer.send({
-    topic,
-    messages: [{ value: JSON.stringify(message) }],
-  });
+  try {
+    await producer.send({
+      topic,
+      messages: [{ value: JSON.stringify(message) }],
+    });
+    console.log(`Message sent successfully to topic ${topic}`);
+  } catch (error) {
+    console.error(`Failed to send message to topic ${topic}:`, error);
+  }
 };
 
 module.exports = {

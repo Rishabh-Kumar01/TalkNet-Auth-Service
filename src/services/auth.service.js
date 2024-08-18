@@ -1,7 +1,7 @@
 const { UserRepository } = require("../repository/index.repository");
 const { errorHandler, kafka } = require("../utils/index.util");
 const { jwt, mongoose } = require("../utils/imports.util");
-const { JWT_SECRET } = require("../config/serverConfig");
+const { JWT_SECRET, JWT_EXPIRES_IN } = require("../config/serverConfig");
 
 class AuthService {
   constructor() {
@@ -18,16 +18,20 @@ class AuthService {
       });
       const token = this.#generateToken(user);
 
-      await kafka.sendMessage("otp-notifications", {
+      const userId = user.id instanceof Object ? user.id.toString() : user.id;
+      // Send OTP to the user's email
+      kafka.sendMessage("otp-notifications", {
         type: "SEND_OTP",
         data: {
-          userId: user._id,
+          userId: userId,
           email: user.email,
           action: "VERIFY_EMAIL",
         },
       });
+
       return { user, token };
     } catch (error) {
+      console.log(error);
       throw error;
     }
   }
@@ -64,7 +68,13 @@ class AuthService {
   }
 
   #generateToken(user) {
-    return jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "1d" });
+    return jwt.sign(
+      { userId: user.id, email: user.email, username: user.username },
+      JWT_SECRET,
+      {
+        expiresIn: JWT_EXPIRES_IN,
+      }
+    );
   }
 
   async googleAuth(profile) {
