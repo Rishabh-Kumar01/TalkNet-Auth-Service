@@ -8,6 +8,17 @@ class AuthService {
     this.userRepository = UserRepository.getInstance();
   }
 
+  #otpSend(userId, user, userAction) {
+    kafka.sendMessage("otp-notifications", {
+      type: "SEND_OTP",
+      data: {
+        userId: userId,
+        email: user.email,
+        action: userAction,
+      },
+    });
+  }
+
   async signup(userData) {
     try {
       const { email, password, username } = userData;
@@ -19,15 +30,9 @@ class AuthService {
       const token = this.#generateToken(user);
 
       const userId = user.id instanceof Object ? user.id.toString() : user.id;
+
       // Send OTP to the user's email
-      kafka.sendMessage("otp-notifications", {
-        type: "SEND_OTP",
-        data: {
-          userId: userId,
-          email: user.email,
-          action: "VERIFY_EMAIL",
-        },
-      });
+      this.#otpSend(userId, user, "VERIFY_EMAIL");
 
       return { user, token };
     } catch (error) {
@@ -53,6 +58,12 @@ class AuthService {
         );
       }
       const token = this.#generateToken(user);
+
+      const userId = user.id instanceof Object ? user.id.toString() : user.id;
+
+      // Send OTP to the user's email
+      this.#otpSend(userId, user, "TWO_FACTOR_AUTH");
+
       return {
         user: {
           id: user._id,
